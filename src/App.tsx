@@ -33,10 +33,9 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos"; // NEW
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"; // NEW
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-// ... (Theme definition remains the same) ...
 const theme = createTheme({
   palette: {
     primary: {
@@ -68,7 +67,6 @@ const theme = createTheme({
       fontWeight: 600,
       marginBottom: "12px",
     },
-    // NEW for smaller labels
     caption: {
       fontWeight: 500,
       color: "#555",
@@ -97,7 +95,7 @@ const theme = createTheme({
         root: {
           "& .MuiOutlinedInput-root": {
             borderRadius: 8,
-            backgroundColor: "#fff", // NEW: Match screenshot
+            backgroundColor: "#fff",
           },
         },
       },
@@ -106,7 +104,6 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          // NEW: Style for standard variant
           "&.MuiInput-underline:before": {
             borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
           },
@@ -125,7 +122,6 @@ const theme = createTheme({
           borderRadius: 12,
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         },
-        // NEW: Outlined variant for setup panels
         outlined: {
           border: "1px solid #e0e0e0",
           boxShadow: "none",
@@ -165,7 +161,6 @@ const theme = createTheme({
   },
 });
 
-// --- Типи ---
 type TriangularNumber = { l: number; m: number; u: number };
 type Fuzzy5 = {
   l: number;
@@ -179,10 +174,8 @@ type LinguisticTerm = {
   fullName: string;
   value: TriangularNumber;
 };
-// --- UPDATED TYPE ---
-type CriterionType = boolean; // true = benefit, false = cost
+type CriterionType = boolean;
 
-// --- Константи (За замовчуванням) ---
 const DEFAULT_CRITERIA_LINGUISTIC_TERMS: LinguisticTerm[] = [
   {
     shortName: "VL",
@@ -212,7 +205,7 @@ const DEFAULT_CRITERIA_LINGUISTIC_TERMS: LinguisticTerm[] = [
   {
     shortName: "H",
     fullName: "High (H)",
-    value: { l: 0.7, m: 0.7, u: 1.0 }, // Повернено згідно ПР
+    value: { l: 0.7, m: 0.7, u: 1.0 },
   },
   {
     shortName: "VH",
@@ -250,7 +243,7 @@ const DEFAULT_ALTERNATIVE_LINGUISTIC_TERMS: LinguisticTerm[] = [
   {
     shortName: "G",
     fullName: "Good (G)",
-    value: { l: 0.7, m: 0.7, u: 1.0 }, // Повернено згідно ПР
+    value: { l: 0.7, m: 0.7, u: 1.0 },
   },
   {
     shortName: "VG",
@@ -259,7 +252,6 @@ const DEFAULT_ALTERNATIVE_LINGUISTIC_TERMS: LinguisticTerm[] = [
   },
 ];
 
-// --- NEW: Короткі назви для хедера результатів ---
 const tabHeaderLabels = [
   "Крок 2",
   "Крок 3",
@@ -272,11 +264,8 @@ const tabHeaderLabels = [
   "Крок 10",
 ];
 
-// --- Допоміжні функції ---
 const geometricMean = (arr: number[]): number => {
   if (arr.some((n) => n <= 0)) {
-    // Геометричне середнє не визначено для нульових або від'ємних значень
-    // У нашому контексті (0.0...1.0) 0 означає 0
     return 0;
   }
   return Math.pow(
@@ -328,7 +317,6 @@ const resizeLabels = (
   return newLabels;
 };
 
-// <T,> - це підказка для TSX, що це generic, а не JSX-тег
 const resize2DArray = <T,>(
   prevArray: T[][],
   newRows: number,
@@ -375,7 +363,6 @@ const formatFuzzy5 = (f: Fuzzy5) => {
   return `[${f.l.toFixed(3)}; ${f.lPrime.toFixed(3)}; ${f.m.toFixed(3)}; ${f.uPrime.toFixed(3)}; ${f.u.toFixed(3)}]`;
 };
 
-// --- Компонент вкладки (TabPanel) ---
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -397,7 +384,6 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-// --- NEW: Компонент редактора термів ---
 interface LinguisticTermEditorProps {
   open: boolean;
   onClose: () => void;
@@ -414,11 +400,11 @@ function LinguisticTermEditor({
   title,
 }: LinguisticTermEditorProps) {
   const [localTerms, setLocalTerms] = useState<LinguisticTerm[]>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({}); // { "0-l": "Error message" }
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (open) {
-      setLocalTerms(JSON.parse(JSON.stringify(terms))); // Deep copy
+      setLocalTerms(JSON.parse(JSON.stringify(terms)));
       setErrors({});
     }
   }, [open, terms]);
@@ -501,9 +487,8 @@ function LinguisticTermEditor({
   };
 
   const handleSave = () => {
-    if (validateTerms(localTerms)) return; // Don't save if errors exist
+    if (validateTerms(localTerms)) return;
 
-    // Нормалізація
     let maxVal = 1.0;
     localTerms.forEach((t) => {
       maxVal = Math.max(maxVal, t.value.l, t.value.m, t.value.u);
@@ -651,26 +636,79 @@ function LinguisticTermEditor({
   );
 }
 
-// --- Головний компонент ---
+const initialDemoData = {
+  numAlternatives: 4,
+  numCriteria: 5,
+  numExperts: 4,
+  alternativeLabels: [
+    "ETF на S&P 500",
+    "ETF на увесь світ",
+    "ETF на ринки, що розвив.",
+    "Фонди REIT",
+  ],
+  criteriaLabels: [
+    "Потенціал дохідності",
+    "Рівень диверсифікації",
+    "Історична стабільність",
+    "Ефективність комісій",
+    "Податкова ефективність",
+  ],
+  expertLabels: [
+    "Фінансовий аналітик",
+    "Приватний інвестор",
+    "Портфельний менеджер",
+    "Експерт з ринків",
+  ],
+  criteriaTypes: [true, true, true, true, true],
+  criteriaInputs: [
+    ["VH", "H", "M", "H", "M"],
+    ["H", "M", "H", "VH", "ML"],
+    ["H", "VH", "H", "H", "M"],
+    ["VH", "M", "M", "M", "L"],
+  ],
+  alternativeInputs: [
+    [
+      ["G", "MG", "G", "G", "VG"],
+      ["G", "VG", "G", "G", "G"],
+      ["VG", "MG", "F", "MG", "F"],
+      ["MG", "MP", "F", "F", "G"],
+    ],
+    [
+      ["G", "MG", "VG", "VG", "VG"],
+      ["G", "VG", "G", "G", "G"],
+      ["VG", "MG", "MP", "MG", "MP"],
+      ["MG", "F", "F", "F", "G"],
+    ],
+    [
+      ["G", "MG", "G", "G", "G"],
+      ["G", "VG", "VG", "G", "G"],
+      ["VG", "MG", "F", "MG", "F"],
+      ["MG", "MP", "F", "F", "MG"],
+    ],
+    [
+      ["G", "G", "G", "G", "G"],
+      ["G", "VG", "G", "G", "G"],
+      ["VG", "G", "F", "MP", "F"],
+      ["F", "MP", "MP", "F", "MG"],
+    ],
+  ],
+};
+
+
 function App() {
-  // --- Стани ---
   const [page, setPage] = useState<"setup" | "results">("setup");
   const [tabIndex, setTabIndex] = useState(0);
 
-  // Налаштування кількостей
-  const [numAlternatives, setNumAlternatives] = useState(4);
-  const [numCriteria, setNumCriteria] = useState(5);
-  const [numExperts, setNumExperts] = useState(4);
+  const [numAlternatives, setNumAlternatives] = useState(initialDemoData.numAlternatives);
+  const [numCriteria, setNumCriteria] = useState(initialDemoData.numCriteria);
+  const [numExperts, setNumExperts] = useState(initialDemoData.numExperts);
 
-  // Налаштування назв
-  const [alternativeLabels, setAlternativeLabels] = useState<string[]>([]);
-  const [criteriaLabels, setCriteriaLabels] = useState<string[]>([]);
-  const [expertLabels, setExpertLabels] = useState<string[]>([]);
+  const [alternativeLabels, setAlternativeLabels] = useState<string[]>(initialDemoData.alternativeLabels);
+  const [criteriaLabels, setCriteriaLabels] = useState<string[]>(initialDemoData.criteriaLabels);
+  const [expertLabels, setExpertLabels] = useState<string[]>(initialDemoData.expertLabels);
 
-  // --- UPDATED STATE for Benefit/Cost ---
-  const [criteriaTypes, setCriteriaTypes] = useState<CriterionType[]>([]);
+  const [criteriaTypes, setCriteriaTypes] = useState<CriterionType[]>(initialDemoData.criteriaTypes);
 
-  // --- NEW: Лінгвістичні терми у стані ---
   const [criteriaTerms, setCriteriaTerms] = useState<LinguisticTerm[]>(
     DEFAULT_CRITERIA_LINGUISTIC_TERMS
   );
@@ -681,11 +719,9 @@ function App() {
     null
   );
 
-  // Налаштування введених даних
-  const [criteriaInputs, setCriteriaInputs] = useState<string[][]>([]);
-  const [alternativeInputs, setAlternativeInputs] = useState<string[][][]>([]);
+  const [criteriaInputs, setCriteriaInputs] = useState<string[][]>(initialDemoData.criteriaInputs);
+  const [alternativeInputs, setAlternativeInputs] = useState<string[][][]>(initialDemoData.alternativeInputs);
 
-  // --- Ефекти для оновлення станів при зміні кількостей ---
   useEffect(() => {
     setAlternativeLabels((prev) =>
       resizeLabels(prev, numAlternatives, "Альтернатива")
@@ -696,9 +732,8 @@ function App() {
     setCriteriaLabels((prev) =>
       resizeLabels(prev, numCriteria, "Критерій")
     );
-    // --- UPDATED LOGIC for criteriaTypes ---
     setCriteriaTypes((prevTypes) => {
-      const newTypes = new Array(numCriteria).fill(true) as CriterionType[]; // true = benefit
+      const newTypes = new Array(numCriteria).fill(true) as CriterionType[];
       for (let i = 0; i < Math.min(prevTypes.length, numCriteria); i++) {
         newTypes[i] = prevTypes[i];
       }
@@ -710,7 +745,6 @@ function App() {
     setExpertLabels((prev) => resizeLabels(prev, numExperts, "Експерт"));
   }, [numExperts]);
 
-  // Оновлення матриць вводу
   useEffect(() => {
     setCriteriaInputs((prev) =>
       resize2DArray(prev, numExperts, numCriteria, "M")
@@ -723,9 +757,7 @@ function App() {
     );
   }, [numExperts, numAlternatives, numCriteria]);
 
-  // --- Скидання термів, якщо видалили кастомні ---
   useEffect(() => {
-    // Перевіряємо, чи поточні обрані значення існують у новому списку термів
     const validShortNames = new Set(criteriaTerms.map((t) => t.shortName));
     const defaultTerm = criteriaTerms[0]?.shortName ?? "M";
     setCriteriaInputs((prev) =>
@@ -777,7 +809,6 @@ function App() {
     setter((prev) => prev.map((l, i) => (i === index ? newLabel : l)));
   };
 
-  // --- UPDATED HANDLER for criteria type change ---
   const handleCriteriaTypeChange = (isBenefit: boolean, index: number) => {
     setCriteriaTypes((prev) =>
       prev.map((t, i) => (i === index ? isBenefit : t))
@@ -824,21 +855,26 @@ function App() {
   };
 
   const resetInputs = () => {
-    // Скидаємо до значень за замовчуванням
     setCriteriaTerms(DEFAULT_CRITERIA_LINGUISTIC_TERMS);
     setAlternativeTerms(DEFAULT_ALTERNATIVE_LINGUISTIC_TERMS);
 
-    setCriteriaInputs(create2DArray(numExperts, numCriteria, "M"));
-    setAlternativeInputs(
-      create3DArray(numExperts, numAlternatives, numCriteria, "G")
-    );
-    setAlternativeLabels(resizeLabels([], numAlternatives, "Альтернатива"));
-    setCriteriaLabels(resizeLabels([], numCriteria, "Критерій"));
-    setExpertLabels(resizeLabels([], numExperts, "Експерт"));
-    setCriteriaTypes(new Array(numCriteria).fill(true)); // true = benefit
-  };
+    const baseNumAlternatives = 4;
+    const baseNumCriteria = 5;
+    const baseNumExperts = 4;
 
-  // --- Сторінка "Налаштування": UI (REVERTED TO TABLE) ---
+    setNumAlternatives(baseNumAlternatives);
+    setNumCriteria(baseNumCriteria);
+    setNumExperts(baseNumExperts);
+
+    setCriteriaInputs(create2DArray(baseNumExperts, baseNumCriteria, "M"));
+    setAlternativeInputs(
+      create3DArray(baseNumExperts, baseNumAlternatives, baseNumCriteria, "G")
+    );
+    setAlternativeLabels(resizeLabels([], baseNumAlternatives, "Альтернатива"));
+    setCriteriaLabels(resizeLabels([], baseNumCriteria, "Критерій"));
+    setExpertLabels(resizeLabels([], baseNumExperts, "Експерт"));
+    setCriteriaTypes(new Array(baseNumCriteria).fill(true));
+  };
 
   const criteriaInputTable = useMemo(
     () => (
@@ -857,7 +893,6 @@ function App() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              {/* Рядок для назв критеріїв */}
               <TableRow>
                 <TableCell sx={{ width: "250px" }}>Експерт</TableCell>
                 {criteriaLabels.map((label, cIdx) => (
@@ -874,7 +909,6 @@ function App() {
                   </TableCell>
                 ))}
               </TableRow>
-              {/* --- UPDATED ROW for Benefit/Cost --- */}
               <TableRow>
                 <TableCell sx={{ width: "250px", pt: 0, pb: 2, border: 0, verticalAlign: 'top' }}>
                   <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
@@ -921,11 +955,11 @@ function App() {
                         fullWidth
                         size="small"
                         renderValue={(selected) =>
-                          criteriaTerms.find((t) => t.shortName === selected) // UPDATED
+                          criteriaTerms.find((t) => t.shortName === selected)
                             ?.shortName ?? ""
                         }
                       >
-                        {criteriaTerms.map((term) => ( // UPDATED
+                        {criteriaTerms.map((term) => (
                           <MenuItem
                             key={term.shortName}
                             value={term.shortName}
@@ -948,7 +982,7 @@ function App() {
       criteriaLabels,
       expertLabels,
       criteriaTypes,
-      criteriaTerms, // NEW
+      criteriaTerms,
       handleLabelChange,
       handleCriteriaChange,
       handleCriteriaTypeChange,
@@ -1018,12 +1052,12 @@ function App() {
                             fullWidth
                             size="small"
                             renderValue={(selected) =>
-                              alternativeTerms.find( // UPDATED
+                              alternativeTerms.find(
                                 (t) => t.shortName === selected
                               )?.shortName ?? ""
                             }
                           >
-                            {alternativeTerms.map((term) => ( // UPDATED
+                            {alternativeTerms.map((term) => (
                               <MenuItem
                                 key={term.shortName}
                                 value={term.shortName}
@@ -1048,15 +1082,13 @@ function App() {
       alternativeLabels,
       criteriaLabels,
       expertLabels,
-      alternativeTerms, // NEW
+      alternativeTerms,
       handleLabelChange,
       handleAlternativeChange,
     ]
   );
 
-  // --- Логіка розрахунків ---
   const calculationResults = useMemo(() => {
-    // NEW: Створюємо карти для швидкого пошуку всередині useMemo
     const criteriaTermMap = new Map(
       criteriaTerms.map((t) => [t.shortName, t.value])
     );
@@ -1072,15 +1104,15 @@ function App() {
       return map.get(name) ?? { l: 0, m: 0, u: 0 };
     };
 
-    // Перевірка, чи готові дані
     if (
       criteriaInputs.length === 0 ||
       alternativeInputs.length === 0 ||
       criteriaTypes.length === 0 ||
-      criteriaInputs[0].length === 0 || // Fix for initial render
+      criteriaInputs[0].length === 0 ||
       alternativeInputs[0]?.[0]?.length === 0
     ) {
       return {
+        step2_aggregatedLinguistic: [],
         step1_criteriaTri: [],
         step1_alternativeTri: [],
         step2_criteriaMatrix: [],
@@ -1095,19 +1127,29 @@ function App() {
       };
     }
 
-    // Крок 1: Отримати трикутні числа з введених даних
+    const step2_aggregatedLinguistic: string[][][] = [];
+    for (let i = 0; i < numAlternatives; i++) {
+      const altRow: string[][] = [];
+      for (let j = 0; j < numCriteria; j++) {
+        const critCell: string[] = [];
+        for (let k = 0; k < numExperts; k++) {
+          critCell.push(alternativeInputs[k][i][j]);
+        }
+        altRow.push(critCell);
+      }
+      step2_aggregatedLinguistic.push(altRow);
+    }
+
     const step1_criteriaTri: TriangularNumber[][] = criteriaInputs.map((row) =>
-      row.map((shortName) => getTerm(shortName, "criteria")) // UPDATED
+      row.map((shortName) => getTerm(shortName, "criteria"))
     );
     const step1_alternativeTri: TriangularNumber[][][] = alternativeInputs.map(
       (expert) =>
         expert.map((alt) =>
-          alt.map((shortName) => getTerm(shortName, "alternative")) // UPDATED
+          alt.map((shortName) => getTerm(shortName, "alternative"))
         )
     );
 
-    // Крок 2: Агрегація експертних оцінок (Fuzzy 5)
-    // Матриця [Критерії x Fuzzy5]
     const step2_criteriaMatrix: Fuzzy5[] = [];
     for (let j = 0; j < numCriteria; j++) {
       const expertOpinionsForCriterion: TriangularNumber[] = [];
@@ -1117,7 +1159,6 @@ function App() {
       step2_criteriaMatrix.push(calculateFuzzy5(expertOpinionsForCriterion));
     }
 
-    // Матриця [Альтернативи x Критерії x Fuzzy5]
     const step3_altMatrices: Fuzzy5[][] = [];
     for (let i = 0; i < numAlternatives; i++) {
       const altRow: Fuzzy5[] = [];
@@ -1130,15 +1171,11 @@ function App() {
       }
       step3_altMatrices.push(altRow);
     }
-    // (step3_altMatrices - це "Матриця нечітких чисел" з Рис. 6)
-    // (step2_criteriaMatrix - це "Матриця нечітких чисел по критеріям" з Рис. 5)
 
-    // Крок 4: Знаходження матриці оптимальних значень (Рис. 7)
-    // --- UPDATED LOGIC for Benefit/Cost ---
     const step4_optimalMatrix = ((): Fuzzy5[] => {
       const optimalMatrix: Fuzzy5[] = [];
       for (let j = 0; j < numCriteria; j++) {
-        const isBenefit = criteriaTypes[j]; // UPDATED (true/false)
+        const isBenefit = criteriaTypes[j];
         const allValues_l: number[] = [];
         const allValues_lPrime: number[] = [];
         const allValues_m: number[] = [];
@@ -1153,7 +1190,6 @@ function App() {
           allValues_u.push(step3_altMatrices[i][j].u);
         }
 
-        // Логіка з документа
         if (isBenefit) {
           optimalMatrix.push({
             l: Math.max(...allValues_l),
@@ -1163,7 +1199,6 @@ function App() {
             u: Math.max(...allValues_u),
           });
         } else {
-          // Cost
           optimalMatrix.push({
             l: Math.min(...allValues_l),
             lPrime: Math.min(...allValues_lPrime),
@@ -1174,46 +1209,38 @@ function App() {
         }
       }
       return optimalMatrix;
-    })(); // Додано criteriaTypes
+    })();
 
-    // Крок 5: Це власне крок 2 (Матриця нечітких чисел по критеріям)
     const step5_criteriaMatrix = step2_criteriaMatrix;
 
-    // Крок 6: Нормування (Рис. 8)
-    // --- UPDATED LOGIC for Benefit/Cost ---
     const step6_normalizedMatrix = ((): Fuzzy5[][] => {
-      // (m+1) x n матриця: [0] = Оптимальна, [1..m] = Альтернативи
       const combinedMatrix = [step4_optimalMatrix, ...step3_altMatrices];
 
       const cj_plus: number[] = new Array(numCriteria).fill(0);
       const aj_minus: number[] = new Array(numCriteria).fill(0);
 
-      // Попередній розрахунок сум
       for (let j = 0; j < numCriteria; j++) {
-        if (criteriaTypes[j]) { // UPDATED (true = benefit)
+        if (criteriaTypes[j]) {
           for (let i = 0; i < combinedMatrix.length; i++) {
             cj_plus[j] += combinedMatrix[i][j].u;
           }
         } else {
-          // cost
           for (let i = 0; i < combinedMatrix.length; i++) {
-            // aj- = sum(1/l)
             aj_minus[j] +=
               combinedMatrix[i][j].l === 0
-                ? Infinity // Уникаємо ділення на нуль
+                ? Infinity
                 : 1 / combinedMatrix[i][j].l;
           }
         }
       }
 
       const normalizedMatrix: Fuzzy5[][] = [];
-      // Нормалізуємо тільки альтернативи (i = 1 to m)
       for (let i = 0; i < numAlternatives; i++) {
         const row: Fuzzy5[] = [];
-        const x_ij = step3_altMatrices[i]; // x_ij це i-й рядок
+        const x_ij = step3_altMatrices[i];
         for (let j = 0; j < numCriteria; j++) {
-          const x_ij_j = x_ij[j]; // Конкретне нечітке число
-          if (criteriaTypes[j]) { // UPDATED (true = benefit)
+          const x_ij_j = x_ij[j];
+          if (criteriaTypes[j]) {
             const c_plus = cj_plus[j];
             if (c_plus === 0) {
               row.push({ l: 0, lPrime: 0, m: 0, uPrime: 0, u: 0 });
@@ -1227,13 +1254,11 @@ function App() {
               u: x_ij_j.u / c_plus,
             });
           } else {
-            // cost
             const a_minus = aj_minus[j];
             if (a_minus === 0 || !isFinite(a_minus)) {
               row.push({ l: 0, lPrime: 0, m: 0, uPrime: 0, u: 0 });
               continue;
             }
-            // Інвертуємо нечітке число: (1/u, 1/uPrime, 1/m, 1/lPrime, 1/l)
             const inv_l = x_ij_j.u === 0 ? Infinity : 1 / x_ij_j.u;
             const inv_lPrime =
               x_ij_j.uPrime === 0 ? Infinity : 1 / x_ij_j.uPrime;
@@ -1254,11 +1279,10 @@ function App() {
         normalizedMatrix.push(row);
       }
 
-      // Також нормалізуємо ОПТИМАЛЬНИЙ рядок
       const normalizedOptimalRow: Fuzzy5[] = [];
       for (let j = 0; j < numCriteria; j++) {
         const x_0j = step4_optimalMatrix[j];
-        if (criteriaTypes[j]) { // UPDATED (true = benefit)
+        if (criteriaTypes[j]) {
           const c_plus = cj_plus[j];
            if (c_plus === 0) {
               normalizedOptimalRow.push({ l: 0, lPrime: 0, m: 0, uPrime: 0, u: 0 });
@@ -1272,7 +1296,6 @@ function App() {
             u: x_0j.u / c_plus,
           });
         } else {
-          // cost
           const a_minus = aj_minus[j];
           if (a_minus === 0 || !isFinite(a_minus)) {
               normalizedOptimalRow.push({ l: 0, lPrime: 0, m: 0, uPrime: 0, u: 0 });
@@ -1292,20 +1315,16 @@ function App() {
           });
         }
       }
-      // Повертаємо [optimal_row, alt1_row, alt2_row, ...]
       return [normalizedOptimalRow, ...normalizedMatrix];
-    })(); // Додано criteriaTypes
+    })();
 
-    // Крок 7: Нормована зважена матриця (Рис. 9)
     const step7_weightedMatrix = ((): Fuzzy5[][] => {
-      const normalizedMatrix = step6_normalizedMatrix; // [optimal, alt1, ...]
-      const weights = step5_criteriaMatrix; // w_j
+      const normalizedMatrix = step6_normalizedMatrix;
+      const weights = step5_criteriaMatrix;
 
       return normalizedMatrix.map((row) => {
-        // row = r_i (або r_0)
         return row.map((r_ij, j) => {
           const w_j = weights[j];
-          // Множення нечітких чисел: (l1*l2, lPrime1*lPrime2, ...)
           return {
             l: r_ij.l * w_j.l,
             lPrime: r_ij.lPrime * w_j.lPrime,
@@ -1317,10 +1336,8 @@ function App() {
       });
     })();
 
-    // Крок 8: Загальна оцінка (сума) (Рис. 10)
     const step8_sumMatrix = ((): Fuzzy5[] => {
-      const weightedMatrix = step7_weightedMatrix; // [optimal, alt1, ...]
-      // Сума нечітких чисел: (sum(l), sum(lPrime), ...)
+      const weightedMatrix = step7_weightedMatrix;
       return weightedMatrix.map((row) => {
         return row.reduce(
           (acc, fuzzy) => {
@@ -1336,29 +1353,24 @@ function App() {
       });
     })();
 
-    // Крок 9: Дефазифікація (Перетворення в чіткі) (Рис. 11)
     const step9_defuzzify = ((): number[] => {
-      const sumMatrix = step8_sumMatrix; // [optimal, alt1, ...]
-      // Формула: (l + lPrime + m + uPrime + u) / 5
+      const sumMatrix = step8_sumMatrix;
       return sumMatrix.map(
         (f) => (f.l + f.lPrime + f.m + f.uPrime + f.u) / 5
       );
     })();
 
-    // Крок 10: Ступінь корисності (Рис. 12)
     const step10_utility = ((): number[] => {
-      const defuzzified = step9_defuzzify; // [optimal, alt1, ...]
-      const optimalValue = defuzzified[0]; // S_def_opt
+      const defuzzified = step9_defuzzify;
+      const optimalValue = defuzzified[0];
       if (optimalValue === 0) {
         return new Array(numAlternatives).fill(0);
       }
-      // Повертаємо тільки альтернативи (з 1-го індексу)
       return defuzzified
         .slice(1)
-        .map((s_def_i) => s_def_i / optimalValue); // Q_i = S_def_i / S_def_opt
+        .map((s_def_i) => s_def_i / optimalValue);
     })();
 
-    // Знаходження найкращої альтернативи
     const bestAlternativeIndex = ((): number => {
       const utilities = step10_utility;
       if (utilities.length === 0) return -1;
@@ -1374,16 +1386,17 @@ function App() {
     })();
 
     return {
+      step2_aggregatedLinguistic,
       step1_criteriaTri,
       step1_alternativeTri,
-      step2_criteriaMatrix, // (Крок 2 + 5)
-      step3_altMatrices, // (Крок 3)
-      step4_optimalMatrix, // (Крок 4)
-      step6_normalizedMatrix, // (Крок 6)
-      step7_weightedMatrix, // (Крок 7)
-      step8_sumMatrix, // (Крок 8)
-      step9_defuzzify, // (Крок 9)
-      step10_utility, // (Крок 10)
+      step2_criteriaMatrix,
+      step3_altMatrices,
+      step4_optimalMatrix,
+      step6_normalizedMatrix,
+      step7_weightedMatrix,
+      step8_sumMatrix,
+      step9_defuzzify,
+      step10_utility,
       bestAlternativeIndex,
     };
   }, [
@@ -1393,8 +1406,8 @@ function App() {
     criteriaInputs,
     alternativeInputs,
     criteriaTypes,
-    criteriaTerms, // NEW
-    alternativeTerms, // NEW
+    criteriaTerms,
+    alternativeTerms,
   ]);
 
   const calculate = () => {
@@ -1402,13 +1415,11 @@ function App() {
     setTabIndex(0);
   };
 
-  // --- Рендеринг ---
   if (page === "setup") {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Container maxWidth="lg" sx={{ py: 4 }}>
-          {/* --- REVERTED SETTINGS PANEL --- */}
           <Typography variant="h4">Налаштування методу Fuzzy ARAS</Typography>
           <Paper sx={{ p: 3, mb: 4, mt: 2 }}>
             <Typography variant="h5">Загальні параметри</Typography>
@@ -1469,15 +1480,11 @@ function App() {
               </Grid>
             </Grid>
             
-            {/* --- DELETED BUTTONS for LT Editor --- */}
           </Paper>
           
-          {/* --- END REVERTED SETTINGS PANEL --- */}
-
           {criteriaInputTable}
           {alternativeInputTables}
 
-          {/* --- NEW DIALOGS --- */}
           <LinguisticTermEditor
             open={editorOpen === "criteria"}
             onClose={() => setEditorOpen(null)}
@@ -1498,8 +1505,10 @@ function App() {
     );
   }
 
-  // --- Сторінка "Результати" ---
   const {
+    step2_aggregatedLinguistic,
+    step1_criteriaTri,
+    step1_alternativeTri,
     step2_criteriaMatrix,
     step3_altMatrices,
     step4_optimalMatrix,
@@ -1509,8 +1518,6 @@ function App() {
     step9_defuzzify,
     step10_utility,
     bestAlternativeIndex,
-    step1_criteriaTri, // Для кроку 3
-    step1_alternativeTri, // Для кроку 3
   } = calculationResults;
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -1521,7 +1528,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        {/* --- NEW HEADER (from screenshot) --- */}
         <Paper>
           <Box
             sx={{
@@ -1564,7 +1570,6 @@ function App() {
               </IconButton>
             </Box>
           </Box>
-          {/* --- END NEW HEADER --- */}
 
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
@@ -1574,31 +1579,27 @@ function App() {
               scrollButtons="auto"
               aria-label="result tabs"
             >
-              <Tab label="Крок 2: Агреговані оцінки" />
+              <Tab label="Крок 2: Агрегація" />
               <Tab label="Крок 3: Трикутні числа" />
               <Tab label="Крок 4: Матриця нечітких чисел" />
               <Tab label="Крок 5: Оптимальні значення" />
               <Tab label="Крок 6: Нормована матриця" />
-              <Tab label="Крок 7: Норм. зважена матриця" />
+              <Tab label="Крок 7: Зважена матриця" />
               <Tab label="Крок 8: Загальна оцінка" />
               <Tab label="Крок 9: Дефазифікація" />
               <Tab label="Крок 10: Ступінь корисності" />
             </Tabs>
           </Box>
-          {/* ... (Всі TabPanel залишаються без змін, вони просто відображають нові дані) ... */}
-          {/* Крок 2: Агреговані оцінки (Рис. 2) */}
+          
           <TabPanel value={tabIndex} index={0}>
             <Typography variant="h5" gutterBottom>
-              Крок 2: Агреговані оцінки альтернатив (Fuzzy 5)
+              Крок 2: Матриця агрегованих оцінок по альтернативам
             </Typography>
-            <Typography variant="body2" gutterBottom>
-              (Також показує "Крок 5: Агреговавані оцінки критеріїв")
-            </Typography>
-            <TableContainer component={Paper} sx={{ mb: 3 }}>
+            <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Критерій</TableCell>
+                    <TableCell>Альтернатива</TableCell>
                     {criteriaLabels.map((label, cIdx) => (
                       <TableCell key={cIdx} align="center">
                         {label}
@@ -1607,22 +1608,21 @@ function App() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Ваги критеріїв (Крок 5)</strong>
-                    </TableCell>
-                    {step2_criteriaMatrix.map((fuzzy, cIdx) => (
-                      <TableCell key={cIdx} align="center">
-                        {formatFuzzy5(fuzzy)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                  {step2_aggregatedLinguistic.map((row, aIdx) => (
+                    <TableRow key={aIdx}>
+                      <TableCell>{alternativeLabels[aIdx]}</TableCell>
+                      {row.map((terms, cIdx) => (
+                        <TableCell key={cIdx} align="center">
+                          {`[${terms.join(", ")}]`}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
           </TabPanel>
-
-          {/* Крок 3: Трикутні числа (Рис. 3, 4) */}
+          
           <TabPanel value={tabIndex} index={1}>
             <Typography variant="h5" gutterBottom>
               Крок 3: Перетворення в трикутні числа
@@ -1695,10 +1695,43 @@ function App() {
             ))}
           </TabPanel>
 
-          {/* Крок 4: Матриця нечітких чисел (Рис. 6) */}
           <TabPanel value={tabIndex} index={2}>
             <Typography variant="h5" gutterBottom>
-              Крок 4: Матриця нечітких чисел (Оцінки альтернатив)
+              Крок 4: Матриця нечітких чисел
+            </Typography>
+            
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Матриця нечітких чисел по критеріям (Ваги)
+            </Typography>
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Критерій</TableCell>
+                    {criteriaLabels.map((label, cIdx) => (
+                      <TableCell key={cIdx} align="center">
+                        {label}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <strong>Ваги критеріїв (w_j)</strong>
+                    </TableCell>
+                    {step2_criteriaMatrix.map((fuzzy, cIdx) => (
+                      <TableCell key={cIdx} align="center">
+                        {formatFuzzy5(fuzzy)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Матриця нечітких чисел по альтернативам
             </Typography>
             <TableContainer component={Paper}>
               <Table size="small">
@@ -1728,7 +1761,6 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 5: Оптимальні значення (Рис. 7) */}
           <TabPanel value={tabIndex} index={3}>
             <Typography variant="h5" gutterBottom>
               Крок 5: Матриця оптимальних значень критеріїв
@@ -1748,7 +1780,7 @@ function App() {
                 <TableBody>
                   <TableRow>
                     <TableCell>
-                      <strong>Optimal alternative</strong>
+                      <strong>Optimal alternative (x_0j)</strong>
                     </TableCell>
                     {step4_optimalMatrix.map((fuzzy, cIdx) => (
                       <TableCell key={cIdx} align="center">
@@ -1761,7 +1793,6 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 6: Нормована матриця (Рис. 8) */}
           <TabPanel value={tabIndex} index={4}>
             <Typography variant="h5" gutterBottom>
               Крок 6: Нормована матриця
@@ -1798,7 +1829,6 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 7: Нормована зважена матриця (Рис. 9) */}
           <TabPanel value={tabIndex} index={5}>
             <Typography variant="h5" gutterBottom>
               Крок 7: Нормована зважена матриця
@@ -1835,7 +1865,6 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 8: Загальна оцінка (Рис. 10) */}
           <TabPanel value={tabIndex} index={6}>
             <Typography variant="h5" gutterBottom>
               Крок 8: Загальна оцінка оптимальності (Сума)
@@ -1868,10 +1897,9 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 9: Дефазифікація (Рис. 11) */}
           <TabPanel value={tabIndex} index={7}>
             <Typography variant="h5" gutterBottom>
-              Крок 9: Дефазифікація (Перетворення в чіткі числа)
+              Крок 9: Дефазифікація
             </Typography>
             <TableContainer component={Paper}>
               <Table size="small">
@@ -1899,7 +1927,6 @@ function App() {
             </TableContainer>
           </TabPanel>
 
-          {/* Крок 10: Ступінь корисності (Рис. 12) */}
           <TabPanel value={tabIndex} index={8}>
             <Typography variant="h5" gutterBottom>
               Крок 10: Ступінь корисності (Фінальний рейтинг)
